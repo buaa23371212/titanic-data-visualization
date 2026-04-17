@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="泰坦尼克号乘客数据可视化分析 - 探索1912年泰坦尼克号沉船事件中的生存模式和数据洞察" />
+    <meta name="keywords" content="泰坦尼克号,数据可视化,数据分析,React,TypeScript,Chart.js,D3.js" />
+    <meta name="author" content="你的姓名" />
+    
+    <!-- Open Graph 标签 -->
+    <meta property="og:title" content="泰坦尼克号数据可视化分析" />
+    <meta property="og:description" content="交互式数据可视化展示泰坦尼克号乘客生存数据" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://[你的用户名].github.io/titanic-data-visualization" />
+    
+    <title>泰坦尼克号数据可视化分析</title>
+    
+    <!-- 预加载关键资源 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- 暗色模式检测 -->
+    <script>
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+    </script>
+  </head>
+  <body class="bg-titanic-background dark:bg-gray-900 transition-colors duration-300">
+    <noscript>
+      <div style="padding: 2rem; text-align: center; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;">
+        <h2>需要启用 JavaScript</h2>
+        <p>此应用需要 JavaScript 才能正常运行。请启用浏览器中的 JavaScript 功能。</p>
+      </div>
+    </noscript>
+    
+    <div id="root">
+      <!-- 加载状态 -->
+      <div class="min-h-screen flex items-center justify-center">
+        <div class="text-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-titanic-primary mx-auto mb-4"></div>
+          <p class="text-gray-600 dark:text-gray-300">加载泰坦尼克号数据可视化...</p>
+        </div>
+      </div>
+    </div>
+    
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- 简单的 PWA 支持 -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then(() => {
+            console.log('Service Worker 注册成功');
+          }).catch(() => {
+            console.log('Service Worker 注册失败');
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

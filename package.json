@@ -1,0 +1,54 @@
+{
+  "name": "titanic-data-visualization",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "泰坦尼克号乘客数据可视化分析项目",
+  "homepage": "https://[你的用户名].github.io/titanic-data-visualization",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\"",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "d3": "^7.9.0",
+    "@observablehq/framework": "^1.8.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/d3": "^7.4.3",
+    "@typescript-eslint/eslint-plugin": "^7.16.1",
+    "@typescript-eslint/parser": "^7.16.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.12",
+    "gh-pages": "^6.1.1",
+    "postcss": "^8.4.38",
+    "prettier": "^3.2.5",
+    "tailwindcss": "^3.4.3",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.10",
+    "vitest": "^1.3.1"
+  },
+  "keywords": [
+    "titanic",
+    "data-visualization",
+    "react",
+    "typescript",
+    "d3.js"
+  ],
+  "author": "你的姓名",
+  "license": "MIT"
+}

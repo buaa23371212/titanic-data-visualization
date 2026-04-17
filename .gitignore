@@ -1,0 +1,154 @@
+# 依赖目录
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 构建输出目录
+dist/
+build/
+out/
+
+# 缓存文件
+.cache/
+.parcel-cache/
+.vite/
+
+# 环境变量文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 日志文件
+logs/
+*.log
+
+# 运行时数据
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# IDE 和编辑器文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python 相关
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.env/
+.venv/
+
+# 安装包
+*.egg
+*.egg-info/
+installed.cfg
+*.egg
+
+# 单元测试/代码覆盖率报告
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# 临时文件
+*.tmp
+*.temp
+
+# 数据可视化项目特定文件
+# 原始数据文件（应该被版本控制）
+# !docs/data/raw/
+
+# 构建时生成的数据文件（不应该被版本控制）
+src/data/processed/
+
+# 包锁文件（应该被版本控制）
+# !package-lock.json
+# !yarn.lock
+
+# 配置文件（应该被版本控制）
+# !.github/
+# !.eslintrc.js
+# !.prettierrc
+# !tailwind.config.js
+# !tsconfig.json
+# !vite.config.ts
+
+# 文档文件（应该被版本控制）
+# !docs/
+
+# 源代码（应该被版本控制）
+# !src/
+
+# 公共资源（应该被版本控制）
+# !public/
+
+# 根目录配置文件（应该被版本控制）
+# !index.html
+# !package.json
+# !README.md
+
+# 特殊文件
+*.tgz
+*.tar.gz
+
+# 开发时生成的临时数据文件
+*.json.tmp
+*.data.tmp
+
+# 图表导出文件
+*.png
+*.jpg
+*.svg
+*.pdf
+
+# 性能分析文件
+*.cpuprofile
+*.heapsnapshot
+
+# 浏览器缓存
+.localstorage
+.sessionstorage
+
+# 包管理器特定文件
+pnpm-debug.log*
+.bun.lockb
+
+# Windows 特定文件
+*.lnk
+
+# macOS 特定文件
+*.icloud
