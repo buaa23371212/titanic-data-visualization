@@ -36,7 +36,7 @@ export const AgeDistributionChart: React.FC<AgeDistributionChartProps> = ({
     // 创建直方图分组
     const ageBins = d3.bin()
       .domain([0, 80]) // 年龄范围：0-80岁
-      .thresholds(16) // 16个分组
+      .thresholds(8) // 8个分组
       (validAges);
     
     return ageBins.map((bin, index, array) => {

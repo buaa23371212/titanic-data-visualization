@@ -183,6 +183,12 @@ function DemographicsAnalysis() {
 // 地理分析页面
 function GeographicAnalysis() {
   const { passengers, summaryStats } = usePassengerData();
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  
+  // 处理位置选择
+  const handleLocationSelect = (location: string | null) => {
+    setSelectedLocation(location);
+  };
   
   return (
     <div className="space-y-6">
@@ -197,11 +203,14 @@ function GeographicAnalysis() {
           subtitle="不同港口乘客的生存情况对比"
           width={500}
           height={350}
+          selectedCategory={selectedLocation}
+          onCategorySelect={handleLocationSelect}
         />
         <CardContainer title="港口分布地图">
           <PortDistributionMap 
             passengers={passengers}
-            portStats={summaryStats?.byEmbarked}
+            selectedPort={selectedLocation}
+            onPortSelect={handleLocationSelect}
           />
         </CardContainer>
       </div>

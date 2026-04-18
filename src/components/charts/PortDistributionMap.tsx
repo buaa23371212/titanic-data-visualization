@@ -15,6 +15,8 @@ interface PortDistributionMapProps {
   passengers: Passenger[];
   className?: string;
   height?: string;
+  selectedPort?: string | null;
+  onPortSelect?: (portCode: string | null) => void;
 }
 
 // 自定义图例控件组件
@@ -90,16 +92,8 @@ const LegendControl: React.FC = () => {
                     <span>航行路线</span>
                   </div>
                   <div class="flex items-center">
-                    <div class="w-3 h-3 bg-blue-500 rounded-full mr-2 flex items-center justify-center text-white text-xs">1</div>
-                    <span>南安普顿 (启航)</span>
-                  </div>
-                  <div class="flex items-center">
-                    <div class="w-3 h-3 bg-blue-500 rounded-full mr-2 flex items-center justify-center text-white text-xs">2</div>
-                    <span>瑟堡 (停靠)</span>
-                  </div>
-                  <div class="flex items-center">
-                    <div class="w-3 h-3 bg-blue-500 rounded-full mr-2 flex items-center justify-center text-white text-xs">3</div>
-                    <span>皇后镇 (停靠)</span>
+                    <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                    <span>港口 (停靠点)</span>
                   </div>
                   <div class="flex items-center">
                     <div class="w-3 h-3 bg-red-500 rounded-full mr-2 flex items-center justify-center text-white text-xs">🚢</div>
@@ -187,8 +181,13 @@ const createCustomMarkerIcon = (color: string, size: number) => {
 export const PortDistributionMap: React.FC<PortDistributionMapProps> = ({
   passengers,
   className = 'h-96',
-  height = '400px'
+  height = '400px',
+  selectedPort,
+  onPortSelect
 }) => {
+  // 地图引用
+  const mapRef = React.useRef<L.Map>(null);
+  
   // 计算所有港口的统计数据
   const portStats = React.useMemo(() => {
     const stats: Record<string, ReturnType<typeof calculatePortStats>> = {};
@@ -207,6 +206,7 @@ export const PortDistributionMap: React.FC<PortDistributionMapProps> = ({
         minZoom={MAP_CONFIG.minZoom}
         maxZoom={MAP_CONFIG.maxZoom}
         scrollWheelZoom={true}
+        ref={mapRef}
       >
         {/* 地图瓦片层 */}
         <TileLayer
@@ -226,16 +226,66 @@ export const PortDistributionMap: React.FC<PortDistributionMapProps> = ({
           const markerSize = Math.min(40, Math.max(20, 20 + Math.floor(stats.totalPassengers / 10)));
           
           const customIcon = createCustomMarkerIcon(markerColor, markerSize);
+          
+          // 处理点击事件
+          const handleClick = () => {
+            // 如果点击的是已选中的港口，则取消选中
+            if (selectedPort === port.code) {
+              onPortSelect?.(null);
+            } else {
+              onPortSelect?.(port.code);
+            }
+          };
+
+          // 当港口被选中时，自动打开弹窗；当取消选中时，收起弹窗
+          const markerRef = React.useRef<L.Marker>(null);
+          
+          React.useEffect(() => {
+            if (selectedPort === port.code && markerRef.current) {
+              // 延迟打开弹窗以确保地图已加载
+              setTimeout(() => {
+                markerRef.current?.openPopup();
+              }, 100);
+            } else if (selectedPort === null && markerRef.current) {
+              // 当取消选中时，收起弹窗
+              setTimeout(() => {
+                markerRef.current?.closePopup();
+              }, 100);
+            }
+          }, [selectedPort, port.code]);
 
           return (
             <Marker 
               key={port.code} 
               position={port.coordinates}
               icon={customIcon}
+              ref={markerRef}
+              eventHandlers={{
+                click: handleClick
+              }}
             >
               <Popup className="custom-popup" maxWidth={300}>
                 <div className="min-w-64 p-2">
                   <h3 className="font-bold text-lg text-blue-800 mb-2">{displayStats.portName}</h3>
+                  
+                  {/* 航线信息 - 添加日期 */}
+                  {(() => {
+                    const routePoint = TITANIC_ROUTE.find(p => p.name === port.fullName);
+                    if (routePoint) {
+                      return (
+                        <div className="mb-3 p-2 bg-blue-50 rounded border border-blue-200">
+                          <div className="flex items-center text-sm text-blue-700">
+                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                            </svg>
+                            <span className="font-semibold">停靠日期:</span>
+                            <span className="ml-1">{routePoint.date}</span>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                   
                   {/* 基础统计信息 */}
                   <div className="grid grid-cols-2 gap-2 mb-3">
@@ -305,17 +355,17 @@ export const PortDistributionMap: React.FC<PortDistributionMapProps> = ({
           dashArray={ROUTE_STYLES.lineDashArray}
         />
         
-        {/* 航线点标记 */}
-        {TITANIC_ROUTE.map((point, index) => (
+        {/* 航线点标记 - 只显示沉船地点 */}
+        {TITANIC_ROUTE.filter(point => point.name === '沉船地点').map((point, index) => (
           <Marker 
             key={`route-${index}`} 
             position={point.coordinates}
             icon={L.divIcon({
               html: `
                 <div style="
-                  background-color: ${point.name === '沉船地点' ? ROUTE_STYLES.shipwreckColor : ROUTE_STYLES.routePointColor};
-                  width: ${point.name === '沉船地点' ? ROUTE_STYLES.shipwreckRadius * 2 : ROUTE_STYLES.routePointRadius * 2}px;
-                  height: ${point.name === '沉船地点' ? ROUTE_STYLES.shipwreckRadius * 2 : ROUTE_STYLES.routePointRadius * 2}px;
+                  background-color: ${ROUTE_STYLES.shipwreckColor};
+                  width: ${ROUTE_STYLES.shipwreckRadius * 2}px;
+                  height: ${ROUTE_STYLES.shipwreckRadius * 2}px;
                   border-radius: 50%;
                   border: 2px solid white;
                   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
@@ -324,16 +374,14 @@ export const PortDistributionMap: React.FC<PortDistributionMapProps> = ({
                   justify-content: center;
                   color: white;
                   font-weight: bold;
-                  font-size: ${point.name === '沉船地点' ? '12px' : '10px'};
+                  font-size: 12px;
                 ">
-                  ${point.name === '沉船地点' ? ROUTE_STYLES.shipwreckIcon : index + 1}
+                  🚢
                 </div>
               `,
               className: 'route-marker',
-              iconSize: [point.name === '沉船地点' ? ROUTE_STYLES.shipwreckRadius * 2 : ROUTE_STYLES.routePointRadius * 2, 
-                        point.name === '沉船地点' ? ROUTE_STYLES.shipwreckRadius * 2 : ROUTE_STYLES.routePointRadius * 2],
-              iconAnchor: [point.name === '沉船地点' ? ROUTE_STYLES.shipwreckRadius : ROUTE_STYLES.routePointRadius, 
-                          point.name === '沉船地点' ? ROUTE_STYLES.shipwreckRadius : ROUTE_STYLES.routePointRadius]
+              iconSize: [ROUTE_STYLES.shipwreckRadius * 2, ROUTE_STYLES.shipwreckRadius * 2],
+              iconAnchor: [ROUTE_STYLES.shipwreckRadius, ROUTE_STYLES.shipwreckRadius]
             })}
           >
             <Popup className="route-popup" maxWidth={300}>
@@ -343,13 +391,11 @@ export const PortDistributionMap: React.FC<PortDistributionMapProps> = ({
                 <div className="text-xs text-gray-500">
                   <span className="font-semibold">日期:</span> {point.date}
                 </div>
-                {point.name === '沉船地点' && (
-                  <div className="mt-2 pt-2 border-t border-gray-200">
-                    <p className="text-xs text-red-600 font-semibold">
-                      🚨 泰坦尼克号在此沉没，1523人遇难
-                    </p>
-                  </div>
-                )}
+                <div className="mt-2 pt-2 border-t border-gray-200">
+                  <p className="text-xs text-red-600 font-semibold">
+                    🚨 泰坦尼克号在此沉没，1523人遇难
+                  </p>
+                </div>
               </div>
             </Popup>
           </Marker>

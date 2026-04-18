@@ -9,6 +9,8 @@ interface SurvivalBarChartProps extends DataChartProps {
   category: SurvivalChartCategory;
   title?: string;
   subtitle?: string;
+  selectedCategory?: string | null;
+  onCategorySelect?: (category: string | null) => void;
 }
 
 export const SurvivalBarChart: React.FC<SurvivalBarChartProps> = ({
@@ -20,7 +22,9 @@ export const SurvivalBarChart: React.FC<SurvivalBarChartProps> = ({
   margin = CHART_DEFAULTS.margin,
   theme = CHART_DEFAULTS.theme,
   onDataPointClick,
-  onDataPointHover
+  onDataPointHover,
+  selectedCategory,
+  onCategorySelect
 }) => {
   const { summaryStats, loading, error } = usePassengerData();
 
@@ -74,13 +78,19 @@ export const SurvivalBarChart: React.FC<SurvivalBarChartProps> = ({
         category={category}
         onDataPointClick={onDataPointClick}
         onDataPointHover={onDataPointHover}
+        selectedCategory={selectedCategory}
+        onCategorySelect={onCategorySelect}
       />
     </ChartContainer>
   );
 };
 
 // 图表内容组件
-const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData> & { category: SurvivalChartCategory }> = ({
+const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData> & { 
+  category: SurvivalChartCategory;
+  selectedCategory?: string | null;
+  onCategorySelect?: (category: string | null) => void;
+}> = ({
   data,
   width,
   height,
@@ -88,9 +98,11 @@ const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData> & { ca
   theme,
   category,
   onDataPointClick,
-  onDataPointHover
+  onDataPointHover,
+  selectedCategory,
+  onCategorySelect
 }) => {
-  const chartWidth = width - margin.left - margin.right;
+  const chartWidth = width - margin.left - margin.right - 40; // 为右侧生存率轴预留空间
   const chartHeight = height - margin.top - margin.bottom;
 
   // 颜色配置
@@ -135,6 +147,30 @@ const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData> & { ca
 
   // 生成柱状图
   const generateBars = () => {
+    const isSelected = (category: string) => {
+      return selectedCategory === category;
+    };
+
+    const selectedStyle = {
+      stroke: '#ffffff',
+      strokeWidth: 3,
+      opacity: 1
+    };
+
+    const handleClick = (category: string, event: React.MouseEvent) => {
+      event.stopPropagation();
+      
+      // 如果点击的是已选中的类别，则取消选择
+      if (selectedCategory === category) {
+        onCategorySelect?.(null);
+      } else {
+        onCategorySelect?.(category);
+      }
+      
+      // 调用原有的数据点点击回调
+      onDataPointClick?.(category, event);
+    };
+
     return data.map((d, i) => {
       const x = xScale(d.category);
       const barWidth = xScale.bandwidth();
@@ -155,6 +191,7 @@ const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData> & { ca
             onMouseEnter={(e) => onDataPointHover?.(d, e)}
             onMouseLeave={(e) => onDataPointHover?.(null, e)}
             onClick={(e) => onDataPointClick?.(d, e)}
+            {...(isSelected(d.category) ? selectedStyle : {})}
           />
           
           {/* 生存部分 */}
@@ -168,16 +205,18 @@ const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData> & { ca
             onMouseEnter={(e) => onDataPointHover?.(d, e)}
             onMouseLeave={(e) => onDataPointHover?.(null, e)}
             onClick={(e) => onDataPointClick?.(d, e)}
+            {...(isSelected(d.category) ? selectedStyle : {})}
           />
           
-          {/* 总数标签 */}
+          {/* 总数标签 - 显示在柱子顶部 */}
           <text
             x={barWidth / 2}
-            y={-5}
+            y={yScale(d.total) - 8}
             textAnchor="middle"
             fontSize="10"
             fill={colors.text}
-            opacity={0.7}
+            fontWeight="bold"
+            opacity={0.9}
           >
             {d.total}
           </text>
@@ -189,6 +228,17 @@ const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData> & { ca
   // 生成X轴
   const generateXAxis = () => {
     const axis = d3.axisBottom(xScale);
+    
+    const handleLabelClick = (category: string, event: React.MouseEvent) => {
+      event.stopPropagation();
+      
+      // 如果点击的是已选中的类别，则取消选择
+      if (selectedCategory === category) {
+        onCategorySelect?.(null);
+      } else {
+        onCategorySelect?.(category);
+      }
+    };
     
     return (
       <g transform={`translate(0, ${chartHeight})`}>
@@ -209,6 +259,8 @@ const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData> & { ca
               fontSize="12"
               fill={colors.text}
               fontWeight="500"
+              style={{ cursor: 'pointer' }}
+              onClick={(e) => handleLabelClick(d.category, e)}
             >
               {label}
             </text>
@@ -236,6 +288,103 @@ const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData> & { ca
         >
           人数/人
         </text>
+      </g>
+    );
+  };
+
+  // 生成右侧生存率Y轴
+  const generateRateAxis = () => {
+    const ticks = [0, 0.25, 0.5, 0.75, 1];
+    
+    return (
+      <g transform={`translate(${chartWidth}, 0)`}>
+        {/* 生存率轴刻度线 */}
+        {ticks.map((tick, i) => (
+          <g key={i}>
+            
+            <text
+              x={10}
+              y={rateScale(tick)}
+              textAnchor="start"
+              dominantBaseline="middle"
+              fontSize="10"
+              fill={colors.text}
+              opacity={0.8}
+            >
+              {Math.round(tick * 100)}%
+            </text>
+          </g>
+        ))}
+        
+        {/* 生存率轴标签 */}
+        <text
+          x={margin.right / 2 + 20}
+          y={chartHeight / 2 - 10}
+          textAnchor="middle"
+          fontSize="12"
+          fill={colors.text}
+          fontWeight="500"
+          transform={`rotate(90, ${margin.right / 2 + 20}, ${chartHeight / 2})`}
+        >
+          生存率
+        </text>
+      </g>
+    );
+  };
+
+  // 生成生存率折线
+  const generateRateLine = () => {
+    const lineGenerator = d3.line<SurvivalChartData>()
+      .x(d => (xScale(d.category) || 0) + xScale.bandwidth() / 2)
+      .y(d => rateScale(d.rate))
+      .curve(d3.curveMonotoneX);
+    
+    const linePath = lineGenerator(data);
+    
+    if (!linePath) return null;
+    
+    return (
+      <g>
+        {/* 折线 */}
+        <path
+          d={linePath}
+          fill="none"
+          stroke="#8b5cf6"
+          strokeWidth={2}
+          strokeDasharray="5,5"
+        />
+        
+        {/* 数据点 */}
+        {data.map((d, i) => {
+          const x = (xScale(d.category) || 0) + xScale.bandwidth() / 2;
+          const y = rateScale(d.rate);
+          
+          return (
+            <g key={`point-${i}`}>
+              {/* 数据点圆圈 */}
+              <circle
+                cx={x}
+                cy={y}
+                r={4}
+                fill="#8b5cf6"
+                stroke="white"
+                strokeWidth={2}
+              />
+              
+              {/* 数据点标签 */}
+              <text
+                x={x}
+                y={y - 10}
+                textAnchor="middle"
+                fontSize="10"
+                fill="#8b5cf6"
+                fontWeight="bold"
+              >
+                {chartUtils.formatPercentage(d.rate)}
+              </text>
+            </g>
+          );
+        })}
       </g>
     );
   };
@@ -277,20 +426,26 @@ const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData> & { ca
       {/* 柱状图 */}
       {generateBars()}
       
-      {/* 生存率标签 */}
-      {generateRateLabels()}
+      {/* 生存率折线 */}
+      {generateRateLine()}
       
       {/* 坐标轴 */}
       {generateXAxis()}
       {generateYAxis()}
+      {generateRateAxis()}
       
-      {/* 图例 */}
-      <g transform={`translate(${chartWidth - 120}, -20)`}>
-        <rect x={0} y={0} width={12} height={12} fill={colors.survived} />
-        <text x={18} y={10} fontSize="12" fill={colors.text}>生存</text>
+      {/* 图例 - 更新位置并添加折线图例 */}
+      <g transform={`translate(${chartWidth - 120}, -40)`}>
+        <rect x={10} y={0} width={12} height={12} fill={colors.survived} />
+        <text x={28} y={10} fontSize="12" fill={colors.text}>生存</text>
         
         <rect x={60} y={0} width={12} height={12} fill={colors.notSurvived} />
         <text x={78} y={10} fontSize="12" fill={colors.text}>未生存</text>
+        
+        {/* 折线图例 */}
+        <line x1={-60} x2={-40} y1={6} y2={6} stroke="#8b5cf6" strokeWidth={2} strokeDasharray="5,5" />
+        <circle cx={-50} cy={6} r={3} fill="#8b5cf6" stroke="white" strokeWidth={1} />
+        <text x={-42} y={10} fontSize="12" fill="#8b5cf6">生存率</text>
       </g>
     </BaseChart>
   );
