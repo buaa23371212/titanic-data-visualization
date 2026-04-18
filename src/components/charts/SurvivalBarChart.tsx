@@ -3,9 +3,10 @@ import * as d3 from 'd3';
 import { BaseChart, ChartTitle, ChartContainer, ChartLoading, ChartError } from './BaseChart';
 import { DataChartProps, SurvivalChartData, chartUtils } from './ChartTypes';
 import { usePassengerData } from '../../hooks/usePassengerData';
+import { SurvivalChartCategory, CHART_CATEGORY_LABELS, CATEGORY_DETAIL_LABELS, CHART_TITLES, CHART_DEFAULTS, CHART_COLORS } from './constants';
 
 interface SurvivalBarChartProps extends DataChartProps {
-  category: 'byClass' | 'bySex' | 'byAgeGroup' | 'byFareGroup' | 'byEmbarked' | 'byFamilySize';
+  category: SurvivalChartCategory;
   title?: string;
   subtitle?: string;
 }
@@ -14,14 +15,18 @@ export const SurvivalBarChart: React.FC<SurvivalBarChartProps> = ({
   category,
   title,
   subtitle,
-  width = 600,
-  height = 400,
-  margin = { top: 40, right: 30, bottom: 60, left: 80 },
-  theme = 'light',
+  width = CHART_DEFAULTS.width,
+  height = CHART_DEFAULTS.height,
+  margin = CHART_DEFAULTS.margin,
+  theme = CHART_DEFAULTS.theme,
   onDataPointClick,
   onDataPointHover
 }) => {
   const { summaryStats, loading, error } = usePassengerData();
+
+  // 动态生成标题和副标题
+  const chartTitle = title || CHART_TITLES[category].title;
+  const chartSubtitle = subtitle || CHART_TITLES[category].subtitle;
 
   // 生成生存分析数据
   const chartData = useMemo(() => {
@@ -33,7 +38,7 @@ export const SurvivalBarChart: React.FC<SurvivalBarChartProps> = ({
   if (loading) {
     return (
       <ChartContainer>
-        {title && <ChartTitle title={title} subtitle={subtitle} theme={theme} />}
+        <ChartTitle title={chartTitle} subtitle={chartSubtitle} theme={theme} />
         <ChartLoading />
       </ChartContainer>
     );
@@ -42,7 +47,7 @@ export const SurvivalBarChart: React.FC<SurvivalBarChartProps> = ({
   if (error) {
     return (
       <ChartContainer>
-        {title && <ChartTitle title={title} subtitle={subtitle} theme={theme} />}
+        <ChartTitle title={chartTitle} subtitle={chartSubtitle} theme={theme} />
         <ChartError message={error} />
       </ChartContainer>
     );
@@ -51,7 +56,7 @@ export const SurvivalBarChart: React.FC<SurvivalBarChartProps> = ({
   if (chartData.length === 0) {
     return (
       <ChartContainer>
-        {title && <ChartTitle title={title} subtitle={subtitle} theme={theme} />}
+        <ChartTitle title={chartTitle} subtitle={chartSubtitle} theme={theme} />
         <ChartError message="暂无数据" />
       </ChartContainer>
     );
@@ -59,13 +64,14 @@ export const SurvivalBarChart: React.FC<SurvivalBarChartProps> = ({
 
   return (
     <ChartContainer>
-      {title && <ChartTitle title={title} subtitle={subtitle} theme={theme} />}
+      <ChartTitle title={chartTitle} subtitle={chartSubtitle} theme={theme} />
       <SurvivalBarChartContent
         data={chartData}
         width={width}
         height={height}
         margin={margin}
         theme={theme}
+        category={category}
         onDataPointClick={onDataPointClick}
         onDataPointHover={onDataPointHover}
       />
@@ -74,12 +80,13 @@ export const SurvivalBarChart: React.FC<SurvivalBarChartProps> = ({
 };
 
 // 图表内容组件
-const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData>> = ({
+const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData> & { category: SurvivalChartCategory }> = ({
   data,
   width,
   height,
   margin,
   theme,
+  category,
   onDataPointClick,
   onDataPointHover
 }) => {
@@ -87,13 +94,7 @@ const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData>> = ({
   const chartHeight = height - margin.top - margin.bottom;
 
   // 颜色配置
-  const colors = {
-    survived: theme === 'light' ? '#10b981' : '#34d399',
-    notSurvived: theme === 'light' ? '#ef4444' : '#f87171',
-    background: theme === 'light' ? '#ffffff' : '#1f2937',
-    grid: theme === 'light' ? '#e5e7eb' : '#374151',
-    text: theme === 'light' ? '#1f2937' : '#f9fafb'
-  };
+  const colors = CHART_COLORS[theme];
 
   // 创建比例尺
   const xScale = d3.scaleBand()
@@ -188,9 +189,31 @@ const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData>> = ({
   // 生成X轴
   const generateXAxis = () => {
     const axis = d3.axisBottom(xScale);
+    
     return (
       <g transform={`translate(0, ${chartHeight})`}>
         {axis.tickSize(0).tickPadding(10)(d3.select(document.createElement('g')))}
+        {/* 在每个柱子下面显示具体的类别名称 */}
+        {data.map((d, i) => {
+          const x = (xScale(d.category) || 0) + xScale.bandwidth() / 2;
+          const y = margin.bottom - 20;
+          const detailLabels = CATEGORY_DETAIL_LABELS[category];
+          const label = detailLabels[d.category] || d.category;
+          
+          return (
+            <text
+              key={`label-${i}`}
+              x={x}
+              y={y}
+              textAnchor="middle"
+              fontSize="12"
+              fill={colors.text}
+              fontWeight="500"
+            >
+              {label}
+            </text>
+          );
+        })}
       </g>
     );
   };
@@ -201,6 +224,18 @@ const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData>> = ({
     return (
       <g>
         {axis.tickSize(0).tickPadding(10)(d3.select(document.createElement('g')))}
+        {/* Y轴标签 */}
+        <text
+          x={-margin.left / 2}
+          y={chartHeight / 2}
+          textAnchor="middle"
+          fontSize="12"
+          fill={colors.text}
+          fontWeight="500"
+          transform={`rotate(-90, ${-margin.left / 2}, ${chartHeight / 2})`}
+        >
+          人数/人
+        </text>
       </g>
     );
   };

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { SurvivalBarChart } from './components/charts/SurvivalBarChart';
 import { usePassengerData } from './hooks/usePassengerData';
 import { SummaryStats } from './types/passenger';
+import { AgeDistributionChart } from './components/charts/AgeDistributionChart';
+import { FamilyStructureChart } from './components/charts/FamilyStructureChart';
 
 // 仪表盘组件
 export default function App() {
@@ -206,16 +208,20 @@ function DemographicsAnalysis() {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold mb-4">年龄分布图表（开发中）</h3>
-          <div className="h-64 flex items-center justify-center text-gray-400">
-            年龄分布直方图 - 待实现
-          </div>
+          <AgeDistributionChart
+            title="年龄分布直方图"
+            subtitle="乘客年龄分布情况"
+            width={500}
+            height={350}
+          />
         </div>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold mb-4">家庭结构分析（开发中）</h3>
-          <div className="h-64 flex items-center justify-center text-gray-400">
-            家庭结构饼图 - 待实现
-          </div>
+          <FamilyStructureChart
+            title="家庭结构分析"
+            subtitle="乘客家庭结构分布"
+            width={500}
+            height={350}
+          />
         </div>
       </div>
     </div>
