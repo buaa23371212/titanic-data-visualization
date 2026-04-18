@@ -129,12 +129,6 @@ src/data/processed/
 *.json.tmp
 *.data.tmp
 
-# 图表导出文件
-*.png
-*.jpg
-*.svg
-*.pdf
-
 # 性能分析文件
 *.cpuprofile
 *.heapsnapshot
