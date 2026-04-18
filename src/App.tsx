@@ -152,11 +152,25 @@ function SurvivalAnalysis() {
 
 // 人口统计分析页面
 function DemographicsAnalysis() {
+  const [selectedFamilySize, setSelectedFamilySize] = useState<string | null>(null);
+  
+  // 处理家庭规模选择
+  const handleFamilySizeSelect = (familySize: string | null) => {
+    setSelectedFamilySize(familySize);
+  };
+  
   return (
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">人口统计分析</h2>
-        <p className="text-gray-600 dark:text-gray-400">年龄分布、家庭结构、票价分布等维度分析</p>
+        <p className="text-gray-600 dark:text-gray-400">
+          年龄分布、家庭结构等维度分析 
+          {selectedFamilySize && (
+            <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+              当前筛选: {selectedFamilySize}
+            </span>
+          )}
+        </p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <CardContainer>
@@ -165,6 +179,7 @@ function DemographicsAnalysis() {
             subtitle="乘客年龄分布情况"
             width={500}
             height={350}
+            selectedFamilySize={selectedFamilySize}
           />
         </CardContainer>
         <CardContainer>
@@ -173,6 +188,8 @@ function DemographicsAnalysis() {
             subtitle="乘客家庭结构分布"
             width={500}
             height={350}
+            selectedFamilySize={selectedFamilySize}
+            onFamilySizeSelect={handleFamilySizeSelect}
           />
         </CardContainer>
       </div>

@@ -8,6 +8,8 @@ import { CHART_DEFAULTS, CHART_COLORS } from '../../utils/constants';
 interface AgeDistributionChartProps extends DataChartProps {
   title?: string;
   subtitle?: string;
+  // 新增联动相关属性
+  selectedFamilySize?: string | null;
 }
 
 export const AgeDistributionChart: React.FC<AgeDistributionChartProps> = ({
@@ -18,7 +20,9 @@ export const AgeDistributionChart: React.FC<AgeDistributionChartProps> = ({
   margin = CHART_DEFAULTS.margin,
   theme = CHART_DEFAULTS.theme,
   onDataPointClick,
-  onDataPointHover
+  onDataPointHover,
+  // 新增联动相关属性
+  selectedFamilySize = null
 }) => {
   const { passengers, loading, error } = usePassengerData();
 
@@ -26,8 +30,25 @@ export const AgeDistributionChart: React.FC<AgeDistributionChartProps> = ({
   const chartData = useMemo(() => {
     if (!passengers || passengers.length === 0) return [];
     
+    // 根据选中的家庭规模过滤数据
+    let filteredPassengers = passengers;
+    if (selectedFamilySize) {
+      filteredPassengers = passengers.filter(passenger => {
+        switch (selectedFamilySize) {
+          case '独自旅行':
+            return passenger.FamilySizeGroup === 'Solo';
+          case '小型家庭':
+            return passenger.FamilySizeGroup === 'Small';
+          case '大型家庭':
+            return passenger.FamilySizeGroup === 'Large';
+          default:
+            return true;
+        }
+      });
+    }
+    
     // 过滤掉年龄缺失的数据
-    const validAges = passengers
+    const validAges = filteredPassengers
       .filter(p => p.Age_original !== null && p.Age_original !== undefined)
       .map(p => p.Age_original as number);
     
@@ -52,7 +73,7 @@ export const AgeDistributionChart: React.FC<AgeDistributionChartProps> = ({
         axisLabel: axisLabel
       };
     });
-  }, [passengers]);
+  }, [passengers, selectedFamilySize]); // 添加 selectedFamilySize 依赖
 
   if (loading) {
     return (
@@ -92,20 +113,26 @@ export const AgeDistributionChart: React.FC<AgeDistributionChartProps> = ({
         theme={theme}
         onDataPointClick={onDataPointClick}
         onDataPointHover={onDataPointHover}
+        selectedFamilySize={selectedFamilySize}
       />
     </ChartContainer>
   );
 };
 
 // 图表内容组件
-const AgeDistributionChartContent: React.FC<DataChartProps<DistributionChartData>> = ({
+interface AgeDistributionChartContentProps extends DataChartProps<DistributionChartData> {
+  selectedFamilySize?: string | null;
+}
+
+const AgeDistributionChartContent: React.FC<AgeDistributionChartContentProps> = ({
   data,
   width,
   height,
   margin,
   theme,
   onDataPointClick,
-  onDataPointHover
+  onDataPointHover,
+  selectedFamilySize = null
 }) => {
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = height - margin.top - margin.bottom;
@@ -311,6 +338,18 @@ const AgeDistributionChartContent: React.FC<DataChartProps<DistributionChartData
         >
           分组数: {data.length}
         </text>
+        {/* 显示筛选状态 */}
+        {selectedFamilySize && (
+          <text
+            x={0}
+            y={45}
+            fontSize="10"
+            fill={colors.accent}
+            fontWeight="500"
+          >
+            筛选: {selectedFamilySize}
+          </text>
+        )}
       </g>
     </BaseChart>
   );

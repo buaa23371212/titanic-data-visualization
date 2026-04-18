@@ -8,6 +8,9 @@ import { CHART_DEFAULTS, CHART_COLORS } from '../../utils/constants';
 interface FamilyStructureChartProps extends DataChartProps {
   title?: string;
   subtitle?: string;
+  // 新增联动相关属性
+  selectedFamilySize?: string | null;
+  onFamilySizeSelect?: (familySize: string | null) => void;
 }
 
 export const FamilyStructureChart: React.FC<FamilyStructureChartProps> = ({
@@ -18,7 +21,10 @@ export const FamilyStructureChart: React.FC<FamilyStructureChartProps> = ({
   margin = CHART_DEFAULTS.margin,
   theme = CHART_DEFAULTS.theme,
   onDataPointClick,
-  onDataPointHover
+  onDataPointHover,
+  // 新增联动相关属性
+  selectedFamilySize = null,
+  onFamilySizeSelect
 }) => {
   const { passengers, loading, error } = usePassengerData();
 
@@ -92,20 +98,29 @@ export const FamilyStructureChart: React.FC<FamilyStructureChartProps> = ({
         theme={theme}
         onDataPointClick={onDataPointClick}
         onDataPointHover={onDataPointHover}
+        selectedFamilySize={selectedFamilySize}
+        onFamilySizeSelect={onFamilySizeSelect}
       />
     </ChartContainer>
   );
 };
 
 // 饼图内容组件
-const FamilyStructureChartContent: React.FC<DataChartProps<DistributionChartData>> = ({
+interface FamilyStructureChartContentProps extends DataChartProps<DistributionChartData> {
+  selectedFamilySize?: string | null;
+  onFamilySizeSelect?: (familySize: string | null) => void;
+}
+
+const FamilyStructureChartContent: React.FC<FamilyStructureChartContentProps> = ({
   data,
   width,
   height,
   margin,
   theme,
   onDataPointClick,
-  onDataPointHover
+  onDataPointHover,
+  selectedFamilySize = null,
+  onFamilySizeSelect
 }) => {
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = height - margin.top - margin.bottom;
@@ -141,9 +156,15 @@ const FamilyStructureChartContent: React.FC<DataChartProps<DistributionChartData
     const pieData = pie(data);
     
     return pieData.map((slice, index) => {
+      const isSelected = selectedFamilySize === slice.data.label;
       const arcPath = arc(slice);
       const labelPosition = labelArc.centroid(slice);
       const percentage = ((slice.endAngle - slice.startAngle) / (2 * Math.PI) * 100).toFixed(1);
+      
+      // 高亮样式
+      const fillOpacity = isSelected ? 1 : 0.8;
+      const strokeWidth = isSelected ? 3 : 2;
+      const strokeColor = isSelected ? colors.accent : colors.background;
       
       return (
         <g key={slice.data.label} transform={`translate(${chartWidth / 2}, ${chartHeight / 2})`}>
@@ -151,13 +172,23 @@ const FamilyStructureChartContent: React.FC<DataChartProps<DistributionChartData
           <path
             d={arcPath || ''}
             fill={pieColors[index % pieColors.length]}
-            opacity={0.8}
-            stroke={colors.background}
-            strokeWidth={2}
+            opacity={fillOpacity}
+            stroke={strokeColor}
+            strokeWidth={strokeWidth}
             cursor="pointer"
             onMouseEnter={(e) => onDataPointHover?.(slice.data, e)}
             onMouseLeave={(e) => onDataPointHover?.(null, e)}
-            onClick={(e) => onDataPointClick?.(slice.data, e)}
+            onClick={(e) => {
+              onDataPointClick?.(slice.data, e);
+              // 处理家庭规模选择逻辑
+              if (onFamilySizeSelect) {
+                if (selectedFamilySize === slice.data.label) {
+                  onFamilySizeSelect(null); // 取消选择
+                } else {
+                  onFamilySizeSelect(slice.data.label); // 选择新家庭规模
+                }
+              }
+            }}
           />
           
           {/* 百分比标签 */}
@@ -168,7 +199,7 @@ const FamilyStructureChartContent: React.FC<DataChartProps<DistributionChartData
               textAnchor="middle"
               dominantBaseline="middle"
               fontSize="12"
-              fill={colors.text}
+              fill={isSelected ? colors.accent : colors.text}
               fontWeight="600"
             >
               {percentage}%
@@ -181,29 +212,35 @@ const FamilyStructureChartContent: React.FC<DataChartProps<DistributionChartData
 
   // 生成图例
   const generateLegend = () => {
-    return data.map((item, index) => (
-      <g key={item.label} transform={`translate(${chartWidth - 120}, ${index * 25})`}>
-        {/* 图例颜色方块 */}
-        <rect
-          x={0}
-          y={0}
-          width={15}
-          height={15}
-          fill={pieColors[index % pieColors.length]}
-          rx={2}
-        />
-        {/* 图例文本 */}
-        <text
-          x={25}
-          y={12}
-          fontSize="11"
-          fill={colors.text}
-          fontWeight="500"
-        >
-          {item.label} ({item.value}人)
-        </text>
-      </g>
-    ));
+    return data.map((item, index) => {
+      const isSelected = selectedFamilySize === item.label;
+      return (
+        <g key={item.label} transform={`translate(${chartWidth - 120}, ${index * 25})`}>
+          {/* 图例颜色方块 */}
+          <rect
+            x={0}
+            y={0}
+            width={15}
+            height={15}
+            fill={pieColors[index % pieColors.length]}
+            rx={2}
+            opacity={isSelected ? 1 : 0.8}
+            stroke={isSelected ? colors.accent : 'none'}
+            strokeWidth={isSelected ? 2 : 0}
+          />
+          {/* 图例文本 */}
+          <text
+            x={25}
+            y={12}
+            fontSize="11"
+            fill={isSelected ? colors.accent : colors.text}
+            fontWeight="500"
+          >
+            {item.label} ({item.value}人)
+          </text>
+        </g>
+      );
+    });
   };
 
   return (
