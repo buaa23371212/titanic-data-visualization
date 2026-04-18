@@ -367,9 +367,9 @@ class TitanicDataPreprocessor:
 
 def main():
     """主函数"""
-    # 文件路径（相对于项目根目录）
-    raw_data_path = "docs/data/raw/Titanic-Dataset.csv"
-    processed_data_path = "src/data/processed/titanic_processed.json"
+    # 文件路径（相对于当前目录）
+    raw_data_path = "../docs/data/raw/Titanic-Dataset.csv"
+    processed_data_path = "../src/data/processed/titanic_processed.json"
     
     # 创建预处理器
     preprocessor = TitanicDataPreprocessor(raw_data_path)
