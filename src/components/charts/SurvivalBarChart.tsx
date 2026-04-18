@@ -139,7 +139,7 @@ const SurvivalBarChartContent: React.FC<DataChartProps<SurvivalChartData>> = ({
       const barWidth = xScale.bandwidth();
       const survivedHeight = chartHeight - yScale(d.survived);
       const notSurvivedHeight = chartHeight - yScale(d.total - d.survived);
-      const notSurvivedY = yScale(d.total) - notSurvivedHeight;
+      const notSurvivedY = yScale(d.total);
 
       return (
         <g key={d.category} transform={`translate(${x}, 0)`}>

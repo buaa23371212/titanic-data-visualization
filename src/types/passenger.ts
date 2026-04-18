@@ -26,6 +26,11 @@ export interface Passenger {
   PclassLabel: 'First' | 'Second' | 'Third'; // 新增：舱位标签
   EmbarkedLabel: 'Southampton' | 'Cherbourg' | 'Queenstown'; // 新增：港口标签
   SexLabel: 'Male' | 'Female'; // 新增：性别标签
+  // 原始值字段，用于前端显示
+  Age_original: number; // 原始年龄值
+  Fare_original: number; // 原始票价值
+  SibSp_original: number; // 原始兄弟姐妹/配偶数量
+  Parch_original: number; // 原始父母/子女数量
 }
 
 // 处理后的乘客数据（与基础接口相同，保持兼容性）

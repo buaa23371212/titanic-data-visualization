@@ -17,6 +17,34 @@ body {
   line-height: 1.6;
   color: #1f2937;
   background-color: #f8fafc;
+  background-image: url('./assets/images/titanic-background.jpg');
+  background-size: 110% auto; /* 左右露出一些 */
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* 主要内容区域模糊背景 */
+.main-content-backdrop {
+  position: relative;
+  min-height: 100vh;
+}
+
+.main-content-backdrop::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('./assets/images/titanic-background.jpg');
+  background-size: 110% auto;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  filter: blur(8px);
+  opacity: 0.7;
+  z-index: -1;
 }
 
 /* 暗色模式支持 */

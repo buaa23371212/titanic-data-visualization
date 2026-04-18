@@ -38,9 +38,9 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="main-content-backdrop">
       {/* 头部 */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm border-b border-gray-200/50 dark:border-gray-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div>
@@ -64,7 +64,7 @@ export default function App() {
       </header>
 
       {/* 导航标签 */}
-      <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <nav className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             {[
@@ -92,10 +92,12 @@ export default function App() {
 
       {/* 主内容 */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'overview' && <OverviewDashboard summaryStats={summaryStats} />}
-        {activeTab === 'survival' && <SurvivalAnalysis />}
-        {activeTab === 'demographics' && <DemographicsAnalysis />}
-        {activeTab === 'geographic' && <GeographicAnalysis />}
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-6">
+          {activeTab === 'overview' && <OverviewDashboard summaryStats={summaryStats} />}
+          {activeTab === 'survival' && <SurvivalAnalysis />}
+          {activeTab === 'demographics' && <DemographicsAnalysis />}
+          {activeTab === 'geographic' && <GeographicAnalysis />}
+        </div>
       </main>
     </div>
   );

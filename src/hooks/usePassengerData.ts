@@ -110,7 +110,8 @@ export const usePassengerData = () => {
       };
     }
 
-    const data = filteredData.length > 0 ? filteredData : passengers;
+    // 摘要统计应该始终基于完整的数据集
+    const data = passengers;
     
     // 基础统计
     const totalPassengers = data.length;
@@ -220,9 +221,9 @@ export const usePassengerData = () => {
       group.rate = group.total > 0 ? group.survived / group.total : 0;
     });
 
-    // 计算平均值
-    const averageAge = data.reduce((sum, p) => sum + p.Age, 0) / totalPassengers;
-    const averageFare = data.reduce((sum, p) => sum + p.Fare, 0) / totalPassengers;
+    // 计算平均值（使用原始值）
+    const averageAge = data.reduce((sum, p) => sum + (p.Age_original || p.Age), 0) / totalPassengers;
+    const averageFare = data.reduce((sum, p) => sum + (p.Fare_original || p.Fare), 0) / totalPassengers;
     const averageFamilySize = data.reduce((sum, p) => sum + p.FamilySize, 0) / totalPassengers;
 
     // 其他统计

@@ -218,6 +218,12 @@ class TitanicDataPreprocessor:
         # 需要标准化的数值列
         numerical_cols = ['Age', 'Fare', 'SibSp', 'Parch']
         
+        # 创建原始值副本，用于前端显示
+        df['Age_original'] = df['Age']
+        df['Fare_original'] = df['Fare']
+        df['SibSp_original'] = df['SibSp']
+        df['Parch_original'] = df['Parch']
+        
         # 创建标准化器
         scaler = StandardScaler()
         
@@ -377,6 +383,15 @@ def main():
         
         # 保存处理后的数据
         preprocessor.save_processed_data(processed_data_path)
+        
+        # 保存摘要信息到JSON文件
+        summary_path = "src/data/processed/titanic_summary.json"
+        Path(summary_path).parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(summary_path, 'w', encoding='utf-8') as f:
+            json.dump(summary, f, ensure_ascii=False, indent=2)
+        
+        print(f"💾 数据摘要已保存到: {summary_path}")
         
         # 打印摘要信息
         print("\n📊 数据摘要:")
