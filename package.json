@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "泰坦尼克号乘客数据可视化分析项目",
-  "homepage": "https://[你的用户名].github.io/titanic-data-visualization",
+  "homepage": "https://buaa23371212.github.io/titanic-data-visualization",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
