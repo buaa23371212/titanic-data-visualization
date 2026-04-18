@@ -109,3 +109,94 @@ export const CHART_TITLES: Record<SurvivalChartCategory, { title: string; subtit
     subtitle: '不同家庭规模乘客的生存情况对比'
   }
 };
+
+// 港口相关常量
+export interface Port {
+  code: 'C' | 'Q' | 'S';
+  name: string;
+  fullName: string;
+  coordinates: [number, number]; // [纬度, 经度]
+  description: string;
+}
+
+export const PORTS: Port[] = [
+  {
+    code: 'S',
+    name: 'Southampton',
+    fullName: '南安普顿',
+    coordinates: [50.9097, -1.4044],
+    description: '英国主要港口，泰坦尼克号启航地'
+  },
+  {
+    code: 'C',
+    name: 'Cherbourg',
+    fullName: '瑟堡',
+    coordinates: [49.6398, -1.6214],
+    description: '法国港口，泰坦尼克号中途停靠'
+  },
+  {
+    code: 'Q',
+    name: 'Queenstown',
+    fullName: '皇后镇',
+    coordinates: [51.8503, -8.2943],
+    description: '爱尔兰港口，泰坦尼克号最后停靠点'
+  }
+];
+
+// 地图配置常量
+export const MAP_CONFIG = {
+  center: [52.0, -3.0] as [number, number],
+  defaultZoom: 5,
+  minZoom: 3,
+  maxZoom: 10,
+  tileLayerUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  tileLayerAttribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+};
+
+// 泰坦尼克号航线配置
+interface RoutePoint {
+  name: string;
+  coordinates: [number, number];
+  description: string;
+  date: string;
+}
+
+export const TITANIC_ROUTE: RoutePoint[] = [
+  {
+    name: '南安普顿',
+    coordinates: [50.9097, -1.4044],
+    description: '启航地 - 1912年4月10日中午12:00',
+    date: '1912-04-10'
+  },
+  {
+    name: '瑟堡',
+    coordinates: [49.6398, -1.6214],
+    description: '中途停靠 - 1912年4月10日18:30',
+    date: '1912-04-10'
+  },
+  {
+    name: '皇后镇',
+    coordinates: [51.8503, -8.2943],
+    description: '最后停靠 - 1912年4月11日11:30',
+    date: '1912-04-11'
+  },
+  {
+    name: '沉船地点',
+    coordinates: [41.7325, -49.9469],
+    description: '泰坦尼克号沉没地点 - 1912年4月15日02:20',
+    date: '1912-04-15'
+  }
+];
+
+// 航线样式配置
+export const ROUTE_STYLES = {
+  lineColor: '#dc2626',
+  lineWeight: 3,
+  lineOpacity: 0.8,
+  lineDashArray: '5, 10',
+  routePointColor: '#3b82f6',
+  routePointRadius: 6,
+  shipwreckColor: '#ef4444',
+  shipwreckRadius: 10,
+  shipwreckIcon: '🚢'
+};

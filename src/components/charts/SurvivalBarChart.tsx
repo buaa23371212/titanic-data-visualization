@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import * as d3 from 'd3';
 import { BaseChart, ChartTitle, ChartContainer, ChartLoading, ChartError } from './BaseChart';
-import { DataChartProps, SurvivalChartData, chartUtils } from './ChartTypes';
+import { DataChartProps, SurvivalChartData, chartUtils } from '../../types/ChartTypes';
 import { usePassengerData } from '../../hooks/usePassengerData';
-import { SurvivalChartCategory, CHART_CATEGORY_LABELS, CATEGORY_DETAIL_LABELS, CHART_TITLES, CHART_DEFAULTS, CHART_COLORS } from './constants';
+import { SurvivalChartCategory, CHART_CATEGORY_LABELS, CATEGORY_DETAIL_LABELS, CHART_TITLES, CHART_DEFAULTS, CHART_COLORS } from '../../utils/constants';
 
 interface SurvivalBarChartProps extends DataChartProps {
   category: SurvivalChartCategory;

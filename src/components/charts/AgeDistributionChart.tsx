@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import * as d3 from 'd3';
 import { BaseChart, ChartTitle, ChartContainer, ChartLoading, ChartError } from './BaseChart';
-import { DataChartProps, DistributionChartData, chartUtils } from './ChartTypes';
+import { DataChartProps, DistributionChartData, chartUtils } from '../../types/ChartTypes';
 import { usePassengerData } from '../../hooks/usePassengerData';
-import { CHART_DEFAULTS, CHART_COLORS } from './constants';
+import { CHART_DEFAULTS, CHART_COLORS } from '../../utils/constants';
 
 interface AgeDistributionChartProps extends DataChartProps {
   title?: string;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BaseChartProps } from './ChartTypes';
+import { BaseChartProps } from '../../types/ChartTypes';
 
 interface BaseChartComponentProps extends BaseChartProps {
   children: React.ReactNode;
