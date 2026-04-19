@@ -113,41 +113,10 @@ function OverviewDashboard({ summaryStats }: { summaryStats?: SummaryStats }) {
 }
 
 // 生存分析页面
+import SurvivalAnalysisPage from './components/SurvivalAnalysisPage';
+
 function SurvivalAnalysis() {
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SurvivalBarChart
-          category="byClass"
-          title="舱位等级 vs 生存率"
-          subtitle="验证社会阶层对生存的影响"
-          width={500}
-          height={350}
-        />
-        <SurvivalBarChart
-          category="bySex"
-          title="性别 vs 生存率"
-          subtitle="验证'妇女儿童优先'原则"
-          width={500}
-          height={350}
-        />
-        <SurvivalBarChart
-          category="byAgeGroup"
-          title="年龄分组 vs 生存率"
-          subtitle="分析不同年龄段生存概率"
-          width={500}
-          height={350}
-        />
-        <SurvivalBarChart
-          category="byFareGroup"
-          title="票价分组 vs 生存率"
-          subtitle="社会经济地位与生存关系"
-          width={500}
-          height={350}
-        />
-      </div>
-    </div>
-  );
+  return <SurvivalAnalysisPage />;
 }
 
 // 人口统计分析页面
