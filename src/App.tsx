@@ -211,7 +211,14 @@ function GeographicAnalysis() {
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">地理维度分析</h2>
-        <p className="text-gray-600 dark:text-gray-400">登船港口分布、票价与港口关系分析</p>
+        <p className="text-gray-600 dark:text-gray-400">
+          登船港口分布、票价与港口关系分析
+          {selectedLocation && (
+            <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+              当前筛选: {selectedLocation}
+            </span>
+          )}
+        </p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SurvivalBarChart

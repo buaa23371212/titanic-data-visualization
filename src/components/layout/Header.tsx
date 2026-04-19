@@ -31,10 +31,15 @@ export const Header: React.FC<HeaderProps> = ({ summaryStats, activeTab, onTabCh
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                总乘客数: {summaryStats?.totalPassengers || 0}
-              </span>
-              <span className="text-sm text-green-600 dark:text-green-400">
-                生存率: {summaryStats ? (summaryStats.survivalRate * 100).toFixed(1) + '%' : '0%'}
+                数据来源: 
+                <a 
+                  href="https://www.kaggle.com/datasets/yasserh/titanic-dataset" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Kaggle Titanic Dataset
+                </a>
               </span>
             </div>
           </div>
